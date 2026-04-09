@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "984095790869",
+    "project_id": "skybox-978f0",
+    "storage_bucket": "skybox-978f0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:984095790869:android:d06e66f1ff7798f91a7b1c",
+        "android_client_info": {
+          "package_name": "com.example.skybox"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBX_03kXafitX9Y99oMgFkiutwJM9qNxU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
