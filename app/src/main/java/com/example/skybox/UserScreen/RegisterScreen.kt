@@ -1,5 +1,6 @@
 package com.example.skybox.UserScreen
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -19,14 +20,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import com.example.skybox.R
+import com.example.skybox.UserViewModel.RegisterViewModel
 
 @Composable
 fun RegisterScreen(
-    OnLoginClick: () -> Unit
+    OnLoginClick: () -> Unit,
+    OnRegisterSuccess: () -> Unit,
+    viewModel: RegisterViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
-
     val topGreen = Color(0xFF2E7D32)
     val middleGreen = Color(0xFF4CAF50)
     val bottomGreen = Color(0xFFA5D6A7)
@@ -38,6 +42,24 @@ fun RegisterScreen(
 
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
+
+    val uiState = viewModel.uiState
+    val context = LocalContext.current
+
+    LaunchedEffect(uiState.errorMessage) {
+        uiState.errorMessage?.let {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            viewModel.clearMessage()
+        }
+    }
+
+    LaunchedEffect(uiState.success) {
+        if (uiState.success) {
+            Toast.makeText(context, "Registro exitoso", Toast.LENGTH_SHORT).show()
+            viewModel.consumeSuccess()
+            OnRegisterSuccess()
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -204,7 +226,15 @@ fun RegisterScreen(
             Spacer(modifier = Modifier.height(26.dp))
 
             Button(
-                onClick = { },
+                onClick = {
+                    viewModel.register(
+                        name = name,
+                        email = email,
+                        password = password,
+                        confirmPassword = confirmPassword
+                    )
+                },
+                enabled = !uiState.isLoading,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
@@ -215,7 +245,7 @@ fun RegisterScreen(
                 )
             ) {
                 Text(
-                    text = "Registrarse",
+                    text = if (uiState.isLoading) "Registrando..." else "Registrarse",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -238,7 +268,7 @@ fun RegisterScreen(
                     modifier = Modifier.height(IntrinsicSize.Min)
                 ) {
                     Text(
-                        text = "Inicio Sesion",
+                        text = "Inicio Sesión",
                         fontSize = 14.sp,
                         color = Color(0xFF2196F3)
                     )

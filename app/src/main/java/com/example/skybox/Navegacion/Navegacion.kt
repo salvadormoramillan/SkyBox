@@ -33,7 +33,8 @@ fun Navegacion() {
 
         composable(Rutas.Register.ruta) {
             RegisterScreen(
-                OnLoginClick = { navController.navigate(Rutas.Login.ruta) }
+                OnLoginClick = { navController.navigate(Rutas.Login.ruta) },
+                OnRegisterSuccess = { navController.navigate(Rutas.Home.ruta) }
             )
             }
 
