@@ -1,9 +1,12 @@
 package com.example.skybox.AppScreen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
@@ -22,7 +25,9 @@ import com.example.skybox.AppViewModel.HomeViewModel
 
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel = viewModel()
+    viewModel: HomeViewModel = viewModel(),
+    onCreateDocument: (String) -> Unit,
+    onOpenDocument: (String) -> Unit
 ) {
     val state = viewModel.uiState
 
@@ -52,10 +57,67 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "Mis documentos",
+                    color = Color.White,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                state.documents.forEach { document ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        Row(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clickable { onOpenDocument(document.id) },
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "• ${document.title}",
+                                color = Color.White,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+
+                        IconButton(onClick = { }) {
+                            Icon(
+                                imageVector = Icons.Default.FileDownload,
+                                contentDescription = "Descargar",
+                                tint = Color.White
+                            )
+                        }
+
+                        IconButton(onClick = { }) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Eliminar",
+                                tint = Color.White
+                            )
+                        }
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
-                onClick = { },
+                onClick = {
+                    val newId = viewModel.createDocument()
+                    onCreateDocument(newId)
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(60.dp),

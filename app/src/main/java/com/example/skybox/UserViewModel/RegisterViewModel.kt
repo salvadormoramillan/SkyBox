@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.skybox.State.RegisterUiState
 import com.google.firebase.auth.FirebaseAuth
-
+import com.google.firebase.auth.UserProfileChangeRequest
 
 class RegisterViewModel : ViewModel() {
 
@@ -62,32 +62,32 @@ class RegisterViewModel : ViewModel() {
                 if (task.isSuccessful) {
                     val user = auth.currentUser
 
-                    user?.updateProfile(
-                        com.google.firebase.auth.UserProfileChangeRequest.Builder()
-                            .setDisplayName(cleanName)
-                            .build()
-                    )?.addOnCompleteListener {
-                        uiState = uiState.copy(
-                            isLoading = false,
-                            errorMessage = null,
-                            success = true
-                        )
-                    } ?: run {
-                        uiState = uiState.copy(
-                            isLoading = false,
-                            errorMessage = null,
-                            success = true
-                        )
-                    }
-                } else {
-                    val message = when (task.exception?.message) {
-                        null -> "No se pudo registrar el usuario"
-                        else -> task.exception?.message ?: "Error desconocido"
-                    }
+                    val profileUpdates = UserProfileChangeRequest.Builder()
+                        .setDisplayName(cleanName)
+                        .build()
 
+                    user?.updateProfile(profileUpdates)
+                        ?.addOnCompleteListener { updateTask ->
+                            if (updateTask.isSuccessful) {
+                                user.reload().addOnCompleteListener {
+                                    uiState = uiState.copy(
+                                        isLoading = false,
+                                        errorMessage = null,
+                                        success = true
+                                    )
+                                }
+                            } else {
+                                uiState = uiState.copy(
+                                    isLoading = false,
+                                    errorMessage = "Usuario creado, pero no se pudo guardar el nombre",
+                                    success = false
+                                )
+                            }
+                        }
+                } else {
                     uiState = uiState.copy(
                         isLoading = false,
-                        errorMessage = message,
+                        errorMessage = task.exception?.message ?: "No se pudo registrar el usuario",
                         success = false
                     )
                 }

@@ -1,14 +1,13 @@
 package com.example.skybox.AppViewModel
 
-
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.example.skybox.AppState.Document
 import com.example.skybox.AppState.HomeUiState
 import com.google.firebase.auth.FirebaseAuth
-
-
+import java.util.UUID
 
 class HomeViewModel : ViewModel() {
 
@@ -24,13 +23,66 @@ class HomeViewModel : ViewModel() {
     private fun loadUser() {
         val user = auth.currentUser
 
-        val name = user?.displayName
-            ?: user?.email?.substringBefore("@")
-            ?: "Usuario"
+        if (user != null) {
+            user.reload().addOnCompleteListener {
+                val refreshedUser = auth.currentUser
+
+                val name = refreshedUser?.displayName?.takeIf { it.isNotBlank() }
+                    ?: refreshedUser?.email?.substringBefore("@")
+                    ?: "Usuario"
+
+                uiState = uiState.copy(
+                    userName = name,
+                    isLoading = false
+                )
+            }
+        } else {
+            uiState = uiState.copy(
+                userName = "Usuario",
+                isLoading = false
+            )
+        }
+    }
+
+    fun createDocument(): String {
+        val newDocument = Document(
+            id = UUID.randomUUID().toString(),
+            title = "Nuevo documento ${uiState.documents.size + 1}",
+            content = ""
+        )
 
         uiState = uiState.copy(
-            userName = name,
-            isLoading = false
+            documents = uiState.documents + newDocument
+        )
+
+        return newDocument.id
+    }
+
+    fun getDocumentById(documentId: String): Document? {
+        return uiState.documents.find { it.id == documentId }
+    }
+
+    fun updateDocumentContent(documentId: String, newContent: String) {
+        uiState = uiState.copy(
+            documents = uiState.documents.map { document ->
+                if (document.id == documentId) {
+                    document.copy(content = newContent)
+                } else {
+                    document
+                }
+            }
+        )
+    }
+
+    fun updateDocumentTitle(documentId: String, newTitle: String) {
+        uiState = uiState.copy(
+            documents = uiState.documents.map { document ->
+                if (document.id == documentId) {
+                    document.copy(title = newTitle)
+                } else {
+                    document
+                }
+            }
         )
     }
 }
